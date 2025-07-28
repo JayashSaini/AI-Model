@@ -1,6 +1,8 @@
 const mongoose = require('mongoose');
 const { DB_NAME } = require('../constants.js');
-module.exports = async function connectDB() {
+const { QdrantClient } = require('@qdrant/js-client-rest');
+
+async function connectDB() {
   try {
     const connectionInstance = await mongoose.connect(
       `${process.env.MONGODB_URI}/${DB_NAME}`
@@ -14,4 +16,11 @@ module.exports = async function connectDB() {
     console.error('MongoDB connection error : ' + error);
     process.exit(1);
   }
-};
+}
+
+const qdrantClient = new QdrantClient({
+  url: process.env.QDRANT_URI,
+  apiKey: process.env.QDRANT_API_KEY,
+});
+
+module.exports = { connectDB, qdrantClient };
