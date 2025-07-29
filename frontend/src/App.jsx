@@ -8,17 +8,18 @@ export default function App() {
   const routes = createBrowserRouter(
     [
       {
-        path: "",
+        path: '/',
+        element: <Home />
+      },
+      {
+        path: "/login",
         element: <Login />
       },
       {
         path: '/register',
         element: <Register />
       },
-      {
-        path: '/home',
-        element: <Home />
-      },
+
     ]
   )
   return (

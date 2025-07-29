@@ -7,8 +7,8 @@ import { FaEyeSlash } from "react-icons/fa";
 export default function Register() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
-    const [firstname, setFirstname] = useState('')
-    const [lastname, setLastname] = useState('')
+    const [firstName, setFirstname] = useState('')
+    const [lastName, setLastname] = useState('')
     const [showpassword, setShowPassword] = useState(false)
     const [error, setError] = useState('')
     const navigator = useNavigate();
@@ -17,7 +17,7 @@ export default function Register() {
     const handleValidation = () => {
         if (!email) {
             setError("Email is required.");
-        } else if (!firstname || !lastname) {
+        } else if (!firstName || !lastName) {
             setError("Name is required.");
         } else if (!password) {
             setError("Password is required.");
@@ -30,28 +30,21 @@ export default function Register() {
         e.preventDefault();
         try {
             axios.post(
-                API_BASE_URL + '/user/register',
+                '/api/user/register',
                 {
-                    email, password, firstname, lastname,
+                    email, password, firstName, lastName
                 }
             ).then(
                 (success) => {
-                    notify(success.data.msg, success.data.status)
-                    if (success.data.status == 1) {
-                        navigator('/login')
-                        setFirstname('')
-                        setLastname('')
-                        setPassword('')
-                        setEmail('')
-
-                    } else {
+                    if (!success.data) {
                         setError(success.data.msg)
+                    } else {
+                        navigator("/")
                     }
                 }
             )
         } catch (error) {
             console.log(error.message);
-
             setError("Login failed. Please try again.")
         }
     };
@@ -73,10 +66,10 @@ export default function Register() {
                                 type="text"
                                 id="Firstname"
                                 onBlur={handleValidation}
-                                value={firstname}
-                                onChange={(e) => setNames(e.target.value)}
+                                value={firstName}
+                                onChange={(e) => setFirstname(e.target.value)}
                                 className="w-full px-4 py-2 mt-1 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                placeholder='First ame'
+                                placeholder='First name'
                             />
                         </div>
 
@@ -88,8 +81,8 @@ export default function Register() {
                                 type="text"
                                 id="Lastname"
                                 onBlur={handleValidation}
-                                value={lastname}
-                                onChange={(e) => setNames(e.target.value)}
+                                value={lastName}
+                                onChange={(e) => setLastname(e.target.value)}
                                 className="w-full px-4 py-2 mt-1 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                                 placeholder='Last name'
                             />
@@ -137,7 +130,7 @@ export default function Register() {
                 </form>
                 <p className="text-center text-gray-600">
                     Already have an account? {' '}
-                    <Link to="/" className="text-blue-500 hover:underline">
+                    <Link to="/login" className="text-blue-500 hover:underline">
                         Sign in
                     </Link>
                 </p>
