@@ -9,7 +9,7 @@ const { storeEmployeesToQdrant } = require('./service/index.js');
   // connect mongodb database
   await connectDB();
 
-  storeEmployeesToQdrant().catch((e) => console.error('quadrant error : ', e));
+  await storeEmployeesToQdrant();
 
   // start http server
   app.listen(process.env.PORT, () => {

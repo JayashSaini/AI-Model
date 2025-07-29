@@ -26,12 +26,13 @@ app.use(helmet());
 app.use(morgan('dev'));
 
 const userRouter = require('./routes/auth/user.routes.js');
+const messageRouter = require('./routes/message.routes.js');
 
 const { ApiError } = require('./utils/ApiError.js');
 const { ApiResponse } = require('./utils/ApiResponse.js');
 
 app.use('/api/v1/users', userRouter);
-
+app.use('/api/v1/messages', messageRouter);
 
 app.get('/api/v1/healthcheck', (_, res) => {
   return res

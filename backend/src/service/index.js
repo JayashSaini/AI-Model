@@ -8,19 +8,49 @@ const { v4: uuidv4 } = require('uuid');
 
 async function storeEmployeesToQdrant() {
   await qdrantClient.recreateCollection('employees', {
-    vectors: { size: 384, distance: 'Cosine' },
+    vectors: {
+      size: 768,
+      distance: 'Cosine',
+    },
+    optimizers_config: {
+      default_segment_number: 1,
+    },
+    payload_schema: {
+      description: { type: 'text' },
+    },
   });
 
   for (const emp of employees) {
     const text = formatEmployee(emp);
-    const vector = await getEmbedding(text);
+    const raw = await getEmbedding(text);
+
+    const vector = Array.from(raw[0].data);
 
     await qdrantClient.upsert('employees', {
       points: [
         {
           id: uuidv4(), // Use employee_id as id (string or number)
-          vector, // Should be a flat array of numbers
-          payload: { ...emp }, // Spread all employee fields
+          vector: vector, // Should be a flat array of numbers
+          payload: {
+            ...emp,
+            description: text,
+            tags: [
+              ...emp.skills,
+              emp.position,
+              emp.department,
+              emp.manager,
+              emp.location,
+              emp.joining_date,
+              emp.employment_type,
+              emp.experience_years,
+              emp.is_remote,
+              emp.projects,
+              emp.phone,
+              emp.email,
+              emp.name,
+              emp.employee_id,
+            ].join(', '),
+          }, // Spread all employee fields
         },
       ],
     });
