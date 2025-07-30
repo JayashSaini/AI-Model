@@ -6,7 +6,6 @@ import axios from "axios";
 
 export default function ChatLayout() {
   const { API_BASE_URL, userData, fetchUser, setUserData, userMessages, currentChat, userChats, fetchMessages } = useContext(Context);
-  const user = JSON.parse(localStorage.getItem("user")) || null;
   const [input, setInput] = useState("");
   const [messages, setMessages] = useState([]);
   const bottomRef = useRef(null);
@@ -22,10 +21,10 @@ export default function ChatLayout() {
 
 
   useEffect(() => {
-    if (!user || user == null) {
+    if (!userData || userData == null) {
       window.location.href = "/login";
     } else {
-      setUserData(user);
+      setUserData(userData);
     }
   }, []);
 

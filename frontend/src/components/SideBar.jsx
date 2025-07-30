@@ -6,16 +6,12 @@ import { MdOutlineDelete } from "react-icons/md";
 
 export default function SideBar() {
     const navigator = useNavigate();
-
     const [searchParams, setSearchParams] = useSearchParams();
-
-
-
     const { userData, userChats, fetchChats, fetchMessages, setCurrentChat, currentChat } = useContext(Context);
 
     useEffect(() => {
-        fetchChats("688759073402997e1eb80b69");
-    }, []);
+        fetchChats(userData?._id);
+    }, [userData]);
 
 
 
@@ -91,7 +87,6 @@ export default function SideBar() {
             console.error("Error deleting chat:", error);
         }
     }
-    console.log("userChats", userChats);
     
 
 

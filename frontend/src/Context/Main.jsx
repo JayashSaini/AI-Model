@@ -6,11 +6,12 @@ import { useNavigate } from 'react-router-dom';
 const Context = createContext();
 
 export default function Main(props) {
+    const user = JSON.parse(localStorage.getItem("user"));
     const [userData, setUserData] = useState(null);
     const [userChats, setUserChats] = useState([]);
     const [userMessages, setUserMessages] = useState([]);
     const USER_URL = '/user'
-     const [currentChat, setCurrentChat] = useState(null);
+    const [currentChat, setCurrentChat] = useState(null);
     // const fetchUser = async (id) => {
     //     try {
     //         const response = await axios.get(`${API_BASE_URL}${USER_URL}/${id}`, {
@@ -50,8 +51,13 @@ export default function Main(props) {
     //             }
     //         )
     // }
+    if (!userData && user) {
+        setUserData(user);
+    }
 
     const fetchChats = (id) => {
+        console.log("Fetching chats for user ID:", id);
+        
         let API = `/api/chat/getChatsByUserId/${id}`;
         axios.get(API)
             .then(
@@ -71,7 +77,7 @@ export default function Main(props) {
 
     const fetchMessages = (chatId = null) => {
         let API = `/api/chat/getAllMessagesByChatId/${chatId}`;
-        if(!chatId) {
+        if (!chatId) {
             return; // No current chat, no need to fetch messages
         }
         axios.get(API)
@@ -88,7 +94,7 @@ export default function Main(props) {
             ).catch(
                 (err) => {
                     setUserMessages([]);
-                   ; // Reset current chat if error occurs
+                    ; // Reset current chat if error occurs
                 }
             )
     }
@@ -96,7 +102,7 @@ export default function Main(props) {
 
 
     return (
-        <Context.Provider value={{ userChats, userData, USER_URL,currentChat,setCurrentChat, setUserData, fetchChats, fetchMessages, userMessages }}>
+        <Context.Provider value={{ userChats, userData, USER_URL, currentChat, setCurrentChat, setUserData, fetchChats, fetchMessages, userMessages }}>
             {props.children}
         </Context.Provider>
     )
