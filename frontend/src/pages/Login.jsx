@@ -8,7 +8,7 @@ import { AiOutlineLoading3Quarters } from "react-icons/ai";
 
 
 export default function Login() {
-    const { API_BASE_URL, USER_URL, fetchUser } = useContext(Context);
+    const { API_BASE_URL, USER_URL, fetchChats, fetchUser, userData } = useContext(Context);
     const [loading, setLoading] = useState(false);
     const navigator = useNavigate();
     const [email, setEmail] = useState('user@gmail.com');
@@ -36,11 +36,15 @@ export default function Login() {
             if (!response.data) {
                 setError(response.data.msg);
             } try {
-                const userResponse = await axios.get(`/api/${USER_URL}/${response.data._id}`, {
+                const userResponse = await axios.get(`/api${USER_URL}`, {
                     withCredentials: true
                 });
                 localStorage.setItem("user", JSON.stringify(userResponse.data));
-                navigator("/");
+                if (localStorage.getItem("user")) {
+                    // fetchChats("688759073402997e1eb80b69");
+                    navigator("/chat");
+
+                }
             }
             catch (err) {
                 console.error("Error fetching user data:", err);

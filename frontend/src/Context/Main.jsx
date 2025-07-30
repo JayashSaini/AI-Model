@@ -6,10 +6,11 @@ import { useNavigate } from 'react-router-dom';
 const Context = createContext();
 
 export default function Main(props) {
-    const userData = JSON.parse(localStorage.getItem("user")) || null;
-    
-
+    const [userData, setUserData] = useState(null);
+    const [userChats, setUserChats] = useState([]);
+    const [userMessages, setUserMessages] = useState([]);
     const USER_URL = '/user'
+     const [currentChat, setCurrentChat] = useState(null);
     // const fetchUser = async (id) => {
     //     try {
     //         const response = await axios.get(`${API_BASE_URL}${USER_URL}/${id}`, {
@@ -50,8 +51,54 @@ export default function Main(props) {
     //         )
     // }
 
+    const fetchChats = (id) => {
+        let API = `/api/chat/getChatsByUserId/${id}`;
+        axios.get(API)
+            .then(
+                (success) => {
+                    if (success.data) {
+                        setUserChats(success.data.chats);
+                    } else {
+                        setUserChats([]);
+                    }
+                }
+            ).catch(
+                (err) => {
+                    setUserChats([]);
+                }
+            )
+    }
+
+    const fetchMessages = (chatId = null) => {
+        let API = `/api/chat/getAllMessagesByChatId/${chatId}`;
+        if(!chatId) {
+            return; // No current chat, no need to fetch messages
+        }
+        
+
+        axios.get(API)
+            .then(
+                (success) => {
+                    if (success.data) {
+                        setUserMessages(success.data.messages);
+                        // Set the current chat ID
+                    } else {
+                        setUserMessages([]);
+                        ; // Reset current chat if no messages
+                    }
+                }
+            ).catch(
+                (err) => {
+                    setUserMessages([]);
+                   ; // Reset current chat if error occurs
+                }
+            )
+    }
+
+
+
     return (
-        <Context.Provider value={{ userData, USER_URL }}>
+        <Context.Provider value={{ userChats, userData, USER_URL,currentChat,setCurrentChat, setUserData, fetchChats, fetchMessages, userMessages }}>
             {props.children}
         </Context.Provider>
     )

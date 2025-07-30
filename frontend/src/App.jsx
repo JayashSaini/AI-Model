@@ -1,23 +1,38 @@
 import React from 'react'
 import { createBrowserRouter, RouterProvider } from 'react-router-dom'
 import Login from './pages/Login'
-import Home from './pages/Home'
+import ChatLayout from './pages/ChatLayout'
 import Register from './pages/Register'
+import PublicRoute from './components/PublicRoute'
+import PrivateRoute from './components/PrivateRoute'
+import { Landing } from './pages/Landing'
+import Layout from './pages/Layout'
 
 export default function App() {
   const routes = createBrowserRouter(
     [
       {
-        path: '/',
-        element: <Home />
+        path: '',
+        element: <Landing />
+      },
+      {
+        path: '/chat',
+        element: <PrivateRoute><Layout /></PrivateRoute>,
+        children: [
+          {
+            path: '',
+            element: <ChatLayout />
+          },
+        ]
+
       },
       {
         path: "/login",
-        element: <Login />
+        element: <PublicRoute><Login /></PublicRoute>
       },
       {
         path: '/register',
-        element: <Register />
+        element: <PublicRoute> <Register /> </PublicRoute>
       },
 
     ]
