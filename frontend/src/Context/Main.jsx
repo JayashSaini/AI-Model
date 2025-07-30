@@ -74,8 +74,6 @@ export default function Main(props) {
         if(!chatId) {
             return; // No current chat, no need to fetch messages
         }
-        
-
         axios.get(API)
             .then(
                 (success) => {

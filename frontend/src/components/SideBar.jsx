@@ -91,6 +91,8 @@ export default function SideBar() {
             console.error("Error deleting chat:", error);
         }
     }
+    console.log("userChats", userChats);
+    
 
 
     return (

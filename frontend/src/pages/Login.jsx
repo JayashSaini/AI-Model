@@ -11,8 +11,8 @@ export default function Login() {
     const { API_BASE_URL, USER_URL, fetchChats, fetchUser, userData } = useContext(Context);
     const [loading, setLoading] = useState(false);
     const navigator = useNavigate();
-    const [email, setEmail] = useState('user@gmail.com');
-    const [password, setPassword] = useState('1234567890');
+    const [email, setEmail] = useState();
+    const [password, setPassword] = useState();
     const [showpassword, setShowPassword] = useState(false)
     const [error, setError] = useState('')
 
