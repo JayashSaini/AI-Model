@@ -1,20 +1,39 @@
 import React, { useState, useRef, useEffect, useContext, use } from "react";
 import { PaperPlaneIcon } from "@radix-ui/react-icons";
 import { Context } from "../Context/Main";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import axios from "axios";
+import { AiOutlineLoading3Quarters } from "react-icons/ai";
 
 export default function ChatLayout() {
-  const { API_BASE_URL, userData, fetchUser, setUserData, userMessages, currentChat, userChats, fetchMessages } = useContext(Context);
+  const {  userData, setCurrentChat, setUserData, userMessages, currentChat, fetchChats, fetchMessages } = useContext(Context);
   const [input, setInput] = useState("");
-  const [messages, setMessages] = useState([]);
   const bottomRef = useRef(null);
-  const navigator = useNavigate();
-  const [toggle, setToggle] = useState(false);
-  // console.log(searchParams.get("chatId"));
+  const [searchParams, setSearchParams] = useSearchParams()
+  const [loading, setLoading] = useState(false);
 
 
+  useEffect(
+    () => {
+      if (!currentChat) {
+        return
+      } else {
+        setSearchParams({ chatId: currentChat });
 
+      }
+    }, [currentChat]
+  )
+
+
+  useEffect(() => {
+    const chatId = searchParams.get("chatId");
+
+    if (chatId && userData) {
+      setCurrentChat(chatId)
+
+      fetchMessages(chatId);
+    }
+  }, [userData]);
 
 
 
@@ -30,11 +49,12 @@ export default function ChatLayout() {
 
   const handleSend = async () => {
     if (input.trim() === "") return;
+    setLoading(true);
 
     try {
       await axios.post(
         `/api/message/sendMessage`,
-        { messages: input, chatId: currentChat },
+        { message: input, chatId: currentChat },
         {
           headers: { 'Content-Type': 'application/json' },
           withCredentials: true,
@@ -42,49 +62,46 @@ export default function ChatLayout() {
       );
       setInput("");
       fetchMessages(currentChat);
+      fetchChats(userData._id)
       bottomRef.current.scrollIntoView({ behavior: "smooth" });
+      setLoading(false);
+
     } catch (error) {
       console.error("Error sending message:", error);
+      setLoading(false);
     }
-
   }
 
+  useEffect(() => {
+  bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+}, [userMessages]);
+
+
+
   return (
-    <div className=" flex flex-col font-sans bg-white">
+    <div className={`flex flex-col font-sans bg-white ${currentChat == null ? "hidden" : "block"}`}>
       <main className="flex flex-col flex-grow overflow-y-auto pb-10 px-[10%] col-span-4 h-[85vh]">
 
         {Array.isArray(userMessages) && userMessages.length > 0 ? (
           userMessages.map((msg, i) => (
             <React.Fragment key={i}>
-              {/* User Prompt */}
-              <div className="max-w-xl px-4 py-3 rounded-lg text-sm bg-gray-100 text-black self-end whitespace-pre-wrap">
+              <div className="max-w-xl px-4 py-3 my-3 rounded-lg text-sm bg-gray-100 text-black self-end whitespace-pre-wrap">
                 {msg.prompt}
               </div>
 
-              {/* Bot Result */}
-              <div className="max-w-xl px-4 py-3 rounded-lg text-sm bg-blue-100 text-blue-900 self-start whitespace-pre-wrap">
-                {msg.result}
-              </div>
+              <div
+                className="max-w-xl px-4 py-3 rounded-lg text-sm bg-blue-100 text-blue-900 self-start whitespace-pre-wrap"
+                dangerouslySetInnerHTML={{
+                  __html: msg.result.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
+                }}
+              ></div>
             </React.Fragment>
           ))
         ) : (
-          <p className="text-gray-500">No messages available</p>
+          <p className="text-gray-500"></p>
         )}
         <div ref={bottomRef} />
 
-        {/* 
-        {messages.map((msg, i) => (
-          <div
-            key={i}
-            className={`max-w-xl px-4 py-3 rounded-lg text-sm whitespace-pre-wrap ${msg.role === "user"
-              ? "bg-gray-100 text-black self-end"
-              : "bg-blue-100 text-blue-900 self-start"
-              }`}
-          >
-            {msg.text}
-          </div>
-        ))} */}
-        <div ref={bottomRef} />
       </main>
 
       <div className="p-4  w-[70%] fixed left-[25%] bottom-5 border-gray-200 ">
@@ -94,15 +111,26 @@ export default function ChatLayout() {
 
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && handleSend()}
+            onKeyDown={async (e) => e.key === "Enter" && await handleSend()}
             placeholder="Type your message..."
             className="flex-1 border border-gray-300 rounded-lg px-4 py-3 outline-none focus:ring-2 focus:ring-blue-500"
           />
           <button
             onClick={handleSend}
+            disabled={loading}
             className="bg-blue-500 hover:bg-blue-600 p-3 rounded-lg text-white"
           >
-            <PaperPlaneIcon className="w-5 h-5" />
+
+            {
+              loading ? (
+                <AiOutlineLoading3Quarters className="animate-spin  " size={25} />
+
+              ) : (
+
+                <PaperPlaneIcon className="w-5 h-5" />
+              )
+            }
+
           </button>
         </div>
       </div>

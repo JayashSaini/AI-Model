@@ -39,7 +39,7 @@ export default function Register() {
                     if (!success.data) {
                         setError(success.data.msg)
                     } else {
-                        navigator("/")
+                        navigator("/login")
                     }
                 }
             )

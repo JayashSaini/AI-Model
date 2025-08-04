@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react'
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { FaEye } from "react-icons/fa";
 import { FaEyeSlash } from "react-icons/fa";
 import axios from 'axios';
@@ -8,13 +8,16 @@ import { AiOutlineLoading3Quarters } from "react-icons/ai";
 
 
 export default function Login() {
-    const { API_BASE_URL, USER_URL, fetchChats, fetchUser, userData } = useContext(Context);
+    const { API_BASE_URL, user, fetchChats, fetchUser, userData, setUserData, setUserMessages } = useContext(Context);
+    const [searchParams, setSearchParams] = useSearchParams();
     const [loading, setLoading] = useState(false);
     const navigator = useNavigate();
     const [email, setEmail] = useState();
     const [password, setPassword] = useState();
     const [showpassword, setShowPassword] = useState(false)
     const [error, setError] = useState('')
+
+
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -25,7 +28,7 @@ export default function Login() {
         }
         setLoading(true);
         try {
-            const response = await axios.post(`/api/${USER_URL}/login`,
+            const response = await axios.post(`/api/user/login`,
                 { email, password },
                 {
                     headers: { 'Content-Type': 'application/json' },
@@ -36,35 +39,38 @@ export default function Login() {
             if (!response.data) {
                 setError(response.data.msg);
             } try {
-                const userResponse = await axios.get(`/api${USER_URL}`, {
+                const userResponse = await axios.get(`/api/user`, {
                     withCredentials: true
                 });
                 localStorage.setItem("user", JSON.stringify(userResponse.data));
                 if (localStorage.getItem("user")) {
+                    setUserData(user);
                     // fetchChats("688759073402997e1eb80b69");
                     navigator("/chat");
+                    setSearchParams('')
+                    setUserMessages("")
 
                 }
             }
             catch (err) {
                 console.error("Error fetching user data:", err);
                 setError("Failed to fetch user data. Please try again.");
+                setLoading(false);
             }
         }
         catch (error) {
             console.log(error.message);
             setError("Login failed. Please try again.");
+            setLoading(false);
+
         }
     };
 
     return (
         <>
+            <div className="relative flex justify-center items-center w-full h-screen overflow-hidden">
 
-            <div className="flex relative flex-col items-center justify-center min-h-screen bg-gray-100">
-                <div className='absolute top-10 '>
-                    <img src="images/iSHOP Logo.svg" alt="" />
-                </div>
-                <div className="w-full max-w-md p-8 space-y-6 bg-white rounded-lg shadow-lg">
+                <div className="w-full col-span-1 max-w-md p-8 space-y-6  rounded-lg shadow-lg bg-opacity-5 bg-white">
                     <h2 className="text-2xl font-bold text-center text-gray-700">Login</h2>
                     {error && <p className='mb-4 text-red-500'>{error}</p>}
                     <form onSubmit={handleSubmit} className="space-y-4">
@@ -75,7 +81,7 @@ export default function Login() {
                             <input
                                 type="email"
                                 id="email"
-                                value={email}
+                                defaultValue={email}
                                 onChange={(e) => setEmail(e.target.value)}
                                 className="w-full px-4 py-2 mt-1 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                             />
@@ -89,7 +95,7 @@ export default function Login() {
                             <input
                                 type={showpassword == true ? 'text' : "password"}
                                 id="password"
-                                value={password}
+                                defaultValue={password}
                                 onChange={(e) => setPassword(e.target.value)}
                                 className="w-full px-4 py-2 mt-1 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                             />
@@ -126,6 +132,13 @@ export default function Login() {
 
                     </div>
                 </div>
+
+
+
+                <div className='col-span-1'>
+
+                </div>
+
             </div >
         </>
     );

@@ -10,54 +10,20 @@ export default function Main(props) {
     const [userData, setUserData] = useState(null);
     const [userChats, setUserChats] = useState([]);
     const [userMessages, setUserMessages] = useState([]);
-    const USER_URL = '/user'
     const [currentChat, setCurrentChat] = useState(null);
-    // const fetchUser = async (id) => {
-    //     try {
-    //         const response = await axios.get(`${API_BASE_URL}${USER_URL}/${id}`, {
-    //             withCredentials: true
-    //         });
 
-    //         if (response.data) {
-    //             setUserData(response.data);
-    //             console.log("User data fetched:", response.data);
-    //             return response.data; // useful if caller needs the data
-    //         } else {
-    //             console.warn("No user data received");
-    //             return null;
-    //         }
-
-    //     } catch (error) {
-    //         console.error("Error fetching user data:", error);
-    //         return null;
-    //     }
-    // };
+    useEffect(() => {
+        if (user === !userData) {
+            setUserData(user);
+        }
+    }, [user]);
 
 
-    // const fetchUser = (id) => {
-    //     let API = `${API_BASE_URL}${USER_URL}/${id}`;
-    //     axios.get(API)
-    //         .then(
-    //             (success) => {
-    //                 if (success.data) {
-    //                     setUserData(success.data);
-    //                     console.log(success.data);
-    //                 }
-    //             }
-    //         ).catch(
-    //             (err) => {
-    //                 console.log(err.message);
-    //             setUserData(null);
-    //             }
-    //         )
-    // }
     if (!userData && user) {
         setUserData(user);
     }
 
     const fetchChats = (id) => {
-        console.log("Fetching chats for user ID:", id);
-        
         let API = `/api/chat/getChatsByUserId/${id}`;
         axios.get(API)
             .then(
@@ -75,26 +41,28 @@ export default function Main(props) {
             )
     }
 
-    const fetchMessages = (chatId = null) => {
+
+
+
+    const fetchMessages = (chatId) => {
         let API = `/api/chat/getAllMessagesByChatId/${chatId}`;
         if (!chatId) {
-            return; // No current chat, no need to fetch messages
+            return; 
         }
         axios.get(API)
             .then(
                 (success) => {
                     if (success.data) {
                         setUserMessages(success.data.messages);
-                        // Set the current chat ID
                     } else {
                         setUserMessages([]);
-                        ; // Reset current chat if no messages
+                        ; 
                     }
                 }
             ).catch(
                 (err) => {
                     setUserMessages([]);
-                    ; // Reset current chat if error occurs
+                    ; 
                 }
             )
     }
@@ -102,7 +70,7 @@ export default function Main(props) {
 
 
     return (
-        <Context.Provider value={{ userChats, userData, USER_URL, currentChat, setCurrentChat, setUserData, fetchChats, fetchMessages, userMessages }}>
+        <Context.Provider value={{ userChats, userData, currentChat,setUserMessages, setCurrentChat, setUserData, fetchChats, fetchMessages, userMessages }}>
             {props.children}
         </Context.Provider>
     )

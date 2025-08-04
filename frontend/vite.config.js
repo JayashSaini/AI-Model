@@ -7,7 +7,7 @@ export default defineConfig({
   server: {
     proxy: {
       "/api": {
-        target: "https://ai-model-vjyo.onrender.com",
+        target: "http://192.168.0.29:8000",
         changeOrigin: true,
         secure: false,
       },

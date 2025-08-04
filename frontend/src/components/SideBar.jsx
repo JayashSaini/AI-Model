@@ -7,7 +7,8 @@ import { MdOutlineDelete } from "react-icons/md";
 export default function SideBar() {
     const navigator = useNavigate();
     const [searchParams, setSearchParams] = useSearchParams();
-    const { userData, userChats, fetchChats, fetchMessages, setCurrentChat, currentChat } = useContext(Context);
+    const { userData, userChats, fetchChats, fetchMessages, setCurrentChat } = useContext(Context);
+
 
     useEffect(() => {
         fetchChats(userData?._id);
@@ -15,25 +16,12 @@ export default function SideBar() {
 
 
 
-    useEffect(() => {
-        if (!currentChat) {
-            return;
-        } else {
-            setSearchParams({ chatId: currentChat } || null);
-        }
-    }, [currentChat]);
-    // console.log(userChats);
-
-    useEffect(() => {
-        if (!searchParams.get("chatId")) {
-            return;
-        } else {
-            fetchMessages(searchParams.get("chatId"), currentChat);
-        }
-    }, [searchParams.get("chatId"), currentChat]);
 
 
-
+    const userChatHistory = async (id) => {
+        setCurrentChat(id)
+        fetchMessages(id)
+    }
 
 
     const Logout = async () => {
@@ -45,8 +33,10 @@ export default function SideBar() {
                     withCredentials: true,
                 }
             );
-            localStorage.removeItem("user");
+            localStorage.clear();
             navigator("/login");
+            setSearchParams({});
+            setCurrentChat(null);
         } catch (error) {
             console.error("Logout failed:", error);
         }
@@ -56,13 +46,16 @@ export default function SideBar() {
         try {
             const res = await axios.post(
                 "/api/chat/createChat",
-                { userId: userData._id, chatName: `Chat with 45464` },
+                { userId: userData._id, chatName: "new chat" },
                 {
                     withCredentials: true,
                 }
             );
             if (res.data) {
+                console.log(res.data);
+                
                 fetchChats(userData._id);
+                userChatHistory(res.data.chat._id)
             }
 
         } catch (error) {
@@ -87,11 +80,11 @@ export default function SideBar() {
             console.error("Error deleting chat:", error);
         }
     }
-    
+
 
 
     return (
-        <aside className=" border  bg-[#f1f2f3] border-gray-300 py-4 px-1 flex flex-col justify-between">
+        <aside className=" border col-span-2 bg-[#f1f2f3] border-gray-300 py-4 px-1 flex flex-col justify-between">
             <div>
                 <div className="flex items-center gap-2">
                     <div
@@ -112,10 +105,10 @@ export default function SideBar() {
                             })
                             .map((chat, index) => (
                                 <div key={index} className=" hover:bg-gray-200 rounded cursor-pointer flex justify-between items-center ">
-                                    <div onClick={() => setCurrentChat(chat._id)} className=' p-2 px-5 w-full'>
+                                    <div onClick={() => userChatHistory(chat._id)} className=' p-2 px-5 w-full'>
                                         {chat.name || `Chat ${index + 1}`}
                                     </div>
-                                    <MdOutlineDelete onClick={() => deleteChat(chat._id)} className='w-8 ' size={20} />
+                                    <MdOutlineDelete onClick={() => deleteChat(chat._id)} className='w-8 m-2 ' size={20} />
                                 </div>
                             ))
                     ) : (
